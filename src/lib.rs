@@ -13,9 +13,9 @@
     clippy::borrow_interior_mutable_const
 )]
 
-mod EDIT;
+mod frame;
 
-#[skyline::main(name = "smashline_test")]
+#[skyline::main(name = "ml_combo_fx")]
 pub fn main() {
-    EDIT::install();
+    frame::install();
 }
