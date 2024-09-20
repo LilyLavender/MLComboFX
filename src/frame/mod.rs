@@ -10,11 +10,11 @@ use {
     smashline::{*, Priority::*}
 };
 
-const FIGHTER_MARIO_INSTANCE_WORK_ID_FLAG_COMBO_EFFECT_SPAWNED : i32 = 0x200000E4;
-const FIGHTER_MARIO_INSTANCE_WORK_ID_INT_COMBO_TIMER : i32 = 0x100000C0;
-const FIGHTER_MARIO_INSTANCE_WORK_ID_INT_COMBO_COUNTER : i32 = 0x100000C1;
+const FIGHTER_INSTANCE_WORK_ID_FLAG_COMBO_EFFECT_SPAWNED : i32 = 0x20000116;
+const FIGHTER_INSTANCE_WORK_ID_INT_COMBO_TIMER : i32 = 0x1000010A;
+const FIGHTER_INSTANCE_WORK_ID_INT_COMBO_COUNTER : i32 = 0x1000010B;
 
-unsafe extern "C" fn mario_frame(fighter: &mut L2CFighterCommon) {
+unsafe extern "C" fn combo_fighter_frame(fighter: &mut L2CFighterCommon) {
     unsafe {
         let boma = fighter.module_accessor;
         let status_kind = StatusModule::status_kind(boma);
@@ -30,14 +30,14 @@ unsafe extern "C" fn mario_frame(fighter: &mut L2CFighterCommon) {
             *FIGHTER_STATUS_KIND_CATCH_TURN,
             *FIGHTER_STATUS_KIND_CATCH_WAIT,
         ].contains(&status_kind) {
-            WorkModule::dec_int(boma, FIGHTER_MARIO_INSTANCE_WORK_ID_INT_COMBO_TIMER);
+            WorkModule::dec_int(boma, FIGHTER_INSTANCE_WORK_ID_INT_COMBO_TIMER);
         }
-        if WorkModule::get_int(boma, FIGHTER_MARIO_INSTANCE_WORK_ID_INT_COMBO_TIMER) <= 0 {
-            WorkModule::set_int(boma, 0, FIGHTER_MARIO_INSTANCE_WORK_ID_INT_COMBO_COUNTER);
+        if WorkModule::get_int(boma, FIGHTER_INSTANCE_WORK_ID_INT_COMBO_TIMER) <= 0 {
+            WorkModule::set_int(boma, 0, FIGHTER_INSTANCE_WORK_ID_INT_COMBO_COUNTER);
         }
 
         // Spawn combo effect & sound
-        if !WorkModule::is_flag(boma, FIGHTER_MARIO_INSTANCE_WORK_ID_FLAG_COMBO_EFFECT_SPAWNED) {
+        if !WorkModule::is_flag(boma, FIGHTER_INSTANCE_WORK_ID_FLAG_COMBO_EFFECT_SPAWNED) {
             if ([
                 *FIGHTER_STATUS_KIND_AIR_LASSO,
                 *FIGHTER_STATUS_KIND_APPEAL,
@@ -59,15 +59,13 @@ unsafe extern "C" fn mario_frame(fighter: &mut L2CFighterCommon) {
                 *FIGHTER_STATUS_KIND_SPECIAL_S,
             ].contains(&status_kind)
             && AttackModule::is_infliction_status(boma, *COLLISION_KIND_MASK_HIT))
-            || (motion_kind == hash40("throw_f") && status_frame >= 13.0) // 19.0 for luigi
-            || (motion_kind == hash40("throw_b") && status_frame >= 44.0) // 19.0 for luigi
-            || (motion_kind == hash40("throw_hi") && status_frame >= 18.0) 
-            || (motion_kind == hash40("throw_lw") && status_frame >= 18.0) {
-                WorkModule::on_flag(boma, FIGHTER_MARIO_INSTANCE_WORK_ID_FLAG_COMBO_EFFECT_SPAWNED);
-                WorkModule::inc_int(boma, FIGHTER_MARIO_INSTANCE_WORK_ID_INT_COMBO_COUNTER);
-                WorkModule::set_int(boma, 50, FIGHTER_MARIO_INSTANCE_WORK_ID_INT_COMBO_TIMER);
+            || (status_kind == *FIGHTER_STATUS_KIND_THROW 
+            && !CatchModule::is_catch(boma)) {
+                WorkModule::on_flag(boma, FIGHTER_INSTANCE_WORK_ID_FLAG_COMBO_EFFECT_SPAWNED);
+                WorkModule::inc_int(boma, FIGHTER_INSTANCE_WORK_ID_INT_COMBO_COUNTER);
+                WorkModule::set_int(boma, 60, FIGHTER_INSTANCE_WORK_ID_INT_COMBO_TIMER);
 
-                let combo_counter = WorkModule::get_int(boma, FIGHTER_MARIO_INSTANCE_WORK_ID_INT_COMBO_COUNTER);
+                let combo_counter = WorkModule::get_int(boma, FIGHTER_INSTANCE_WORK_ID_INT_COMBO_COUNTER);
                 if combo_counter == 2 {
                     macros::PLAY_SE(fighter, Hash40::new("se_mario_bros_combo_ok"));
                     macros::EFFECT(fighter, Hash40::new("bros_combo_ok"), Hash40::new("head"), 0, 0, 0, 0, 0, 0, 1.0, 0, 0, 0, 0, 0, 0, false);
@@ -87,13 +85,13 @@ unsafe extern "C" fn mario_frame(fighter: &mut L2CFighterCommon) {
         
         // Reset effect spawned flag
         if status_frame <= 1.0 {
-            WorkModule::off_flag(boma, FIGHTER_MARIO_INSTANCE_WORK_ID_FLAG_COMBO_EFFECT_SPAWNED)
+            WorkModule::off_flag(boma, FIGHTER_INSTANCE_WORK_ID_FLAG_COMBO_EFFECT_SPAWNED)
         }
     }
 }
 
 pub fn install() {
-    Agent::new("mario") // luigi
-        .on_line(Main, mario_frame)
+    Agent::new("fighter") // replace w char name
+        .on_line(Main, combo_fighter_frame)
         .install();
 }
