@@ -39,7 +39,6 @@ unsafe extern "C" fn combo_fighter_frame(fighter: &mut L2CFighterCommon) {
         // Spawn combo effect & sound
         if !WorkModule::is_flag(boma, FIGHTER_INSTANCE_WORK_ID_FLAG_COMBO_EFFECT_SPAWNED) {
             if ([
-                *FIGHTER_STATUS_KIND_AIR_LASSO,
                 *FIGHTER_STATUS_KIND_APPEAL,
                 *FIGHTER_STATUS_KIND_ATTACK,
                 *FIGHTER_STATUS_KIND_ATTACK_100,
@@ -63,7 +62,8 @@ unsafe extern "C" fn combo_fighter_frame(fighter: &mut L2CFighterCommon) {
             && !CatchModule::is_catch(boma)) {
                 WorkModule::on_flag(boma, FIGHTER_INSTANCE_WORK_ID_FLAG_COMBO_EFFECT_SPAWNED);
                 WorkModule::inc_int(boma, FIGHTER_INSTANCE_WORK_ID_INT_COMBO_COUNTER);
-                WorkModule::set_int(boma, 60, FIGHTER_INSTANCE_WORK_ID_INT_COMBO_TIMER);
+                WorkModule::set_int(boma, 90, FIGHTER_INSTANCE_WORK_ID_INT_COMBO_TIMER);
+                // ^ 60 for Mario & Luigi-specific version ^
 
                 let combo_counter = WorkModule::get_int(boma, FIGHTER_INSTANCE_WORK_ID_INT_COMBO_COUNTER);
                 if combo_counter == 2 {
