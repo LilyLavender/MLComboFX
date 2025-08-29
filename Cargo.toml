@@ -11,11 +11,14 @@ titleid = "01006A800016E000"
 crate-type = ["cdylib"]
 
 [dependencies]
-skyline = "0.2.1"
+skyline = { git = "https://github.com/ultimate-research/skyline-rs.git" }
 skyline_smash = { git = "https://github.com/blu-dev/skyline-smash.git", features = ["weak_l2cvalue"] }
 smash_script = { git = "https://github.com/blu-dev/smash-script.git", branch = "development" }
 smashline = { git = "https://github.com/hdr-development/smashline.git" }
 smash_singletons = { git = "https://github.com/WuBoytH/smash_singletons.git" }
+lazy_static = "1.4.0"
+toml = "0.5.2"
+serde = "1.0.136"
 
 [profile.dev]
 panic = "abort"
