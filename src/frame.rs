@@ -104,9 +104,9 @@ pub fn get_fighter_kind_from_string(target_kind: &str) -> i32 {
     }
 }
 
-const FIGHTER_INSTANCE_WORK_ID_FLAG_COMBO_EFFECT_SPAWNED : i32 = 0x20000116;
-const FIGHTER_INSTANCE_WORK_ID_INT_COMBO_TIMER : i32 = 0x1000010B;
-const FIGHTER_INSTANCE_WORK_ID_INT_COMBO_COUNTER : i32 = 0x1000010C;
+const FIGHTER_INSTANCE_WORK_ID_FLAG_COMBO_EFFECT_SPAWNED : i32 = 0x2000cc00;
+const FIGHTER_INSTANCE_WORK_ID_INT_COMBO_TIMER : i32 = 0x1000cc00;
+const FIGHTER_INSTANCE_WORK_ID_INT_COMBO_COUNTER : i32 = 0x1000cc01;
 
 unsafe extern "C" fn combo_fighter_frame(fighter: &mut L2CFighterCommon) {
     let boma = fighter.module_accessor;
